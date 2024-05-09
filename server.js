@@ -1,36 +1,37 @@
 require('dotenv').config();
 const http = require('http');
-
-// The target URL to which we will redirect GET requests
-const targetUrl = process.env.TARGET_URL;
-
-// The number of seconds to wait before redirecting
-const redirectDelay = 5; // You can change this to any number of seconds
+const url = require('url');
 
 // Create the server
 const server = http.createServer((req, res) => {
   if (req.method === 'GET') {
-    // Set the content type to HTML
-    res.setHeader('Content-Type', 'text/html');
+    // Parse the request URL to extract the plan and task identifiers
+    const parsedUrl = url.parse(req.url, true);
+    const pathParts = parsedUrl.pathname.split('/').filter(Boolean);
 
-    // Write the HTML response with a meta refresh tag
-    res.write(`
-      <!DOCTYPE html>
-      <html lang="en">
-      <head>
-        <meta charset="UTF-8">
-        <meta http-equiv="refresh" content="${redirectDelay};url=${targetUrl}">
-        <title>Redirecting...</title>
-      </head>
-      <body>
-        <h1>Redirecting to ${targetUrl}...</h1>
-        <p>You will be redirected in ${redirectDelay} seconds.</p>
-      </body>
-      </html>
-    `);
+    // Check if the path is in the format 'plan/get-task/doro-0001'
+    if (pathParts.length === 3) {
+      const service = pathParts[0].toUpperCase();
+      const action = pathParts[1];
+      const taskId = pathParts[2];
 
-    // End the response
-    res.end();
+      // Check if the corresponding environment variable is set
+      const serviceUrl = process.env[`SERVICE_${service}`];
+      if (serviceUrl) {
+        // Redirect the user to the target URL
+        const targetUrl = `${serviceUrl}/${action}/${taskId}`;
+        res.writeHead(302, { 'Location': targetUrl });
+        res.end();
+      } else {
+        // If the environment variable is not set, return an error
+        res.statusCode = 400;
+        res.end(`Environment variable SERVICE_${plan} is not set.`);
+      }
+    } else {
+      // If the request URL is not in the expected format, return an error
+      res.statusCode = 400;
+      res.end('Invalid request URL.');
+    }
   } else {
     // Handle other request methods as needed
     res.statusCode = 405; // Method Not Allowed
