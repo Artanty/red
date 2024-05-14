@@ -9,7 +9,7 @@ const server = http.createServer((req, res) => {
     const parsedUrl = url.parse(req.url, true);
     const pathParts = parsedUrl.pathname.split('/').filter(Boolean);
 
-    // Check if the path is in the format 'plan/get-task/doro-0001'
+    // Check if the path is in the format '/plan/get-ext-task/PLAN-0012'
     if (pathParts.length === 3) {
       const service = pathParts[0].toUpperCase();
       const action = pathParts[1];
@@ -40,7 +40,7 @@ const server = http.createServer((req, res) => {
 });
 
 // Start the server
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 3210;
 server.listen(port, () => {
   console.log(`Server running at http://localhost:${port}`);
 });
