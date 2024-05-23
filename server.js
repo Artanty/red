@@ -39,6 +39,10 @@ const server = http.createServer((req, res) => {
   }
 });
 
+app.get('/get-updates', async (req, res) => {
+  res.json({ RED__STATUS: 'working' })
+})
+
 // Start the server
 const port = process.env.PORT || 3210;
 server.listen(port, () => {
