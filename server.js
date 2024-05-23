@@ -4,7 +4,11 @@ const url = require('url');
 
 // Create the server
 const server = http.createServer((req, res) => {
-  if (req.method === 'GET') {
+  if (req.method === 'GET' && req.url.includes("get-updates")) {
+    // res.end({ RED__STATUS: 'working' })
+    res.writeHead(200, {'Content-Type': 'text/plain'});
+    res.end(JSON.stringify({ RED__STATUS: 'working' }));
+  } else if (req.method === 'GET' && !req.url.includes("get-updates")) {
     // Parse the request URL to extract the plan and task identifiers
     const parsedUrl = url.parse(req.url, true);
     const pathParts = parsedUrl.pathname.split('/').filter(Boolean);
@@ -38,10 +42,6 @@ const server = http.createServer((req, res) => {
     res.end('Only GET requests are allowed');
   }
 });
-
-app.get('/get-updates', async (req, res) => {
-  res.json({ RED__STATUS: 'working' })
-})
 
 // Start the server
 const port = process.env.PORT || 3210;
