@@ -4,6 +4,7 @@ const url = require('url');
 
 // Create the server
 const server = http.createServer((req, res) => {
+  console.log(req.url)
   if (req.method === 'GET' && req.url.includes("get-updates")) {
     // res.end({ RED__STATUS: 'working' })
     res.writeHead(200, {'Content-Type': 'text/plain'});
