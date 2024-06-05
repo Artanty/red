@@ -2,7 +2,6 @@ require('dotenv').config();
 const http = require('http');
 const url = require('url');
 
-// Create the server
 const server = http.createServer((req, res) => {
   console.log(req.url)
   if (req.method === 'GET' && req.url.includes("get-updates")) {
