@@ -51,15 +51,15 @@ jobs:
           token: ${{ env.API_TOKEN_GITHUB }} # Replace with your Personal Access Token secret
           path: target
 
-      # - name: Copy files from source to target
-      #   run: |
-      #     cp -R source/* target/
+      - name: Copy files from source to target
+        run: |
+          cp -R source/* target/
 
-      # - name: Commit and push changes
-      #   run: |
-      #     cd target
-      #     git config --global user.email "actions@github.com"
-      #     git config --global user.name "GitHub Action"
-      #     git add .
-      #     git commit -m "Sync from source repo"
-      #     git push
+      - name: Commit and push changes
+        run: |
+          cd target
+          git config --global user.email "actions@github.com"
+          git config --global user.name "GitHub Action"
+          git add .
+          git commit -m "Sync from source repo"
+          git push
