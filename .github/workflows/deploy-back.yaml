@@ -7,69 +7,19 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-
+    container: pandoc/latex    # "ubuntu" is a more generic container
+                               # using "pandoc/latex" because of dependencies
+                               # used in the specific "build.sh 
     steps:
       - uses: actions/checkout@v2
-
-      - name: Install npm dependencies
-        run: npm install
-
-      - name: Extract part of repository name
-        id: extract_repo_part
-        run: |
-          REPO_PART=${GITHUB_REPOSITORY##*/}
-          echo "repo_part=$REPO_PART" >> $GITHUB_OUTPUT
-
-      - name: Send POST request
-        id: send_post_request
-        run: |
-          RESPONSE=$(curl -s -X POST -H "Content-Type: application/json" \
-          -d "{\"projectId\":\"${{ steps.extract_repo_part.outputs.repo_part }}@github\",\"state\":\"DEPLOY\"}" \
-          https://cs99850.tmweb.ru/safe/get)
-          echo "Response: $RESPONSE"
-          echo "response=$RESPONSE" >> $GITHUB_OUTPUT
-
-      - name: Set environment variables and push to another repository
-        run: |
-          echo "TARGET_GIT_TOKEN=${{ fromJson(steps.send_post_request.outputs.response).data.TARGET_GIT_TOKEN }}" >> $GITHUB_ENV
-          echo "TARGET_GIT_SSH=${{ fromJson(steps.send_post_request.outputs.response).data.TARGET_GIT_SSH }}" >> $GITHUB_ENV
-          echo "TARGET_GIT_USER=${{ fromJson(steps.send_post_request.outputs.response).data.TARGET_GIT_USER }}" >> $GITHUB_ENV
-          echo "TARGET_GIT_REPO=${{ fromJson(steps.send_post_request.outputs.response).data.TARGET_GIT_REPO }}" >> $GITHUB_ENV
       
-      - name: Checkout source code
-        uses: actions/checkout@v4
+      - name: Pushes to another repository
+        uses: cpina/github-action-push-to-another-repository@main
+        env:
+          API_TOKEN_GITHUB: ${{ secrets.API_TOKEN_GITHUB_TARGET }}
         with:
-          ref: master
-          path: source
-
-      - name: Checkout target code
-        uses: actions/checkout@v4
-        with:
-          repository: ${{ env.TARGET_GIT_USER }}/${{ env.TARGET_GIT_REPO }}
-          ref: main
-          # ssh-key: ${{ env.TARGET_GIT_SSH }}
-          path: target
-          token: ${{ env.TARGET_GIT_TOKEN }}
-
-      - name: Copy files from source to target
-        run: |
-          cp -R source/* target/
-
-      - name: Commit and push changes
-        run: |
-          cd target
-          git config --global user.email "actions@github.com"
-          git config --global user.name "GitHub Action"
-          git add .
-          git commit -m "Sync from source repo"
-          git push
-      # - name: Commit and push changes
-      #   run: |
-      #     echo "# 22" >> README2.md
-      #     git config --global user.name "GitHub Action"
-      #     git config --global user.email "actions@github.com"
-      #     git add .
-      #     git commit -am "Go"
-      #     git push https://x-access-token:${{ env.TARGET_GIT_TOKEN }}@github.com/${{ env.TARGET_GIT_USER }}/${{ env.TARGET_GIT_REPO }}.git
+          source-directory: '.'
+          destination-github-username: 'Abuyin2004'
+          destination-repository-name: 'apple_tobacco'
+          user-email: carles3@pina.cat
+          target-branch: master
