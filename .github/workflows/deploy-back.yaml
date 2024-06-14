@@ -37,11 +37,11 @@ jobs:
           echo "DESTINATION_GIT_REPO=${{ fromJson(steps.send_post_request.outputs.response).data.DESTINATION_GIT_REPO }}" >> $GITHUB_ENV
 
       
-      # - name: Checkout source code
-      #   uses: actions/checkout@v2
-      #   with:
-      #     ref: master
-      #     path: source
+      - name: Checkout source code
+        uses: actions/checkout@v2
+        with:
+          ref: master
+          path: source
 
       # - name: Checkout target code
       #   uses: actions/checkout@v2
