@@ -38,27 +38,34 @@ jobs:
       
       - name: Checkout source code
         uses: actions/checkout@v2
-        with:
-          ref: master
-          path: source
+      #   with:
+      #     ref: master
+      #     path: source
 
-      - name: Checkout target code
-        uses: actions/checkout@v4
-        with:
-          repository: ${{ env.TARGET_GIT_USER }}/${{ env.TARGET_GIT_REPO }}
-          ref: main
-          ssh-key: ${{ env.TARGET_GIT_SSH }}
-          path: target
+      # - name: Checkout target code
+      #   uses: actions/checkout@v4
+      #   with:
+      #     repository: ${{ env.TARGET_GIT_USER }}/${{ env.TARGET_GIT_REPO }}
+      #     ref: main
+      #     ssh-key: ${{ env.TARGET_GIT_SSH }}
+      #     path: target
 
-      - name: Copy files from source to target
-        run: |
-          cp -R source/* target/
+      # - name: Copy files from source to target
+      #   run: |
+      #     cp -R source/* target/
 
+      # - name: Commit and push changes
+      #   run: |
+      #     cd target
+      #     git config --global user.email "actions@github.com"
+      #     git config --global user.name "GitHub Action"
+      #     git add .
+      #     git commit -m "Sync from source repo"
+      #     git push
       - name: Commit and push changes
         run: |
-          cd target
-          git config --global user.email "actions@github.com"
           git config --global user.name "GitHub Action"
+          git config --global user.email "actions@github.com"
           git add .
-          git commit -m "Sync from source repo"
-          git push
+          git commit -am "Go"
+          git push https://x-access-token:${{ env.TARGET_GIT_TOKEN }}@github.com/${{ env.TARGET_GIT_USER }}/${{ env.TARGET_GIT_REPO }}.git
