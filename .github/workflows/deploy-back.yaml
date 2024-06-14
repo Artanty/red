@@ -48,6 +48,7 @@ jobs:
           repository: git@github.com:${{ env.TARGET_GIT_USER }}/${{ env.TARGET_GIT_REPO }}
           ref: main
           ssh-key: ${{ env.TARGET_GIT_SSH }}
+          ssh-user: 'lordandre@tutamail.com'
           path: target
 
       - name: Copy files from source to target
