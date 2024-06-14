@@ -43,13 +43,13 @@ jobs:
           ref: master
           path: source
 
-      # - name: Checkout target code
-      #   uses: actions/checkout@v2
-      #   with:
-      #     repository: ${{ env.DESTINATION_GIT_USER }}/${{ env.DESTINATION_GIT_REPO }} # Replace with your target repository
-      #     ref: main
-      #     token: ${{ env.API_TOKEN_GITHUB }} # Replace with your Personal Access Token secret
-      #     path: target
+      - name: Checkout target code
+        uses: actions/checkout@v2
+        with:
+          repository: ${{ env.DESTINATION_GIT_USER }}/${{ env.DESTINATION_GIT_REPO }} # Replace with your target repository
+          ref: main
+          token: ${{ env.API_TOKEN_GITHUB }} # Replace with your Personal Access Token secret
+          path: target
 
       # - name: Copy files from source to target
       #   run: |
