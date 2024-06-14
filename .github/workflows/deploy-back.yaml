@@ -24,18 +24,16 @@ jobs:
         id: send_post_request
         run: |
           RESPONSE=$(curl -s -X POST -H "Content-Type: application/json" \
-          -d "{\"projectId\":\"${{ steps.extract_repo_part.outputs.repo_part }}\",\"state\":\"DEPLOY_WRAPPER\"}" \
+          -d "{\"projectId\":\"${{ steps.extract_repo_part.outputs.repo_part }}@github\",\"state\":\"DEPLOY\"}" \
           https://cs99850.tmweb.ru/safe/get)
           echo "Response: $RESPONSE"
           echo "response=$RESPONSE" >> $GITHUB_OUTPUT
 
       - name: Set environment variables and push to another repository
         run: |
-          echo "API_TOKEN_GITHUB=${{ fromJson(steps.send_post_request.outputs.response).data.GIT_TOKEN }}" >> $GITHUB_ENV
-          echo "PROD_URL=${{ fromJson(steps.send_post_request.outputs.response).data.PROD_URL }}" >> $GITHUB_ENV
-          echo "DESTINATION_GIT_USER=${{ fromJson(steps.send_post_request.outputs.response).data.DESTINATION_GIT_USER }}" >> $GITHUB_ENV
-          echo "DESTINATION_GIT_REPO=${{ fromJson(steps.send_post_request.outputs.response).data.DESTINATION_GIT_REPO }}" >> $GITHUB_ENV
-
+          echo "TARGET_GIT_TOKEN=${{ fromJson(steps.send_post_request.outputs.response).data.TARGET_GIT_TOKEN }}" >> $GITHUB_ENV
+          echo "TARGET_GIT_USER=${{ fromJson(steps.send_post_request.outputs.response).data.TARGET_GIT_USER }}" >> $GITHUB_ENV
+          echo "TARGET_GIT_REPO=${{ fromJson(steps.send_post_request.outputs.response).data.TARGET_GIT_REPO }}" >> $GITHUB_ENV
       
       - name: Checkout source code
         uses: actions/checkout@v2
@@ -46,9 +44,9 @@ jobs:
       - name: Checkout target code
         uses: actions/checkout@v2
         with:
-          repository: ${{ env.DESTINATION_GIT_USER }}/${{ env.DESTINATION_GIT_REPO }} # Replace with your target repository
+          repository: ${{ env.TARGET_GIT_USER }}/${{ env.TARGET_GIT_REPO }}
           ref: main
-          token: ${{ env.API_TOKEN_GITHUB }} # Replace with your Personal Access Token secret
+          token: ${{ env.TARGET_GIT_TOKEN }}
           path: target
 
       - name: Copy files from source to target
