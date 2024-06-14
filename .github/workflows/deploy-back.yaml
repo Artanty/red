@@ -20,21 +20,21 @@ jobs:
           REPO_PART=${GITHUB_REPOSITORY##*/}
           echo "repo_part=$REPO_PART" >> $GITHUB_OUTPUT
 
-      # - name: Send POST request
-      #   id: send_post_request
-      #   run: |
-      #     RESPONSE=$(curl -s -X POST -H "Content-Type: application/json" \
-      #     -d "{\"projectId\":\"${{ steps.extract_repo_part.outputs.repo_part }}\",\"state\":\"DEPLOY_WRAPPER\"}" \
-      #     https://cs99850.tmweb.ru/safe/get)
-      #     echo "Response: $RESPONSE"
-      #     echo "response=$RESPONSE" >> $GITHUB_OUTPUT
+      - name: Send POST request
+        id: send_post_request
+        run: |
+          RESPONSE=$(curl -s -X POST -H "Content-Type: application/json" \
+          -d "{\"projectId\":\"${{ steps.extract_repo_part.outputs.repo_part }}\",\"state\":\"DEPLOY_WRAPPER\"}" \
+          https://cs99850.tmweb.ru/safe/get)
+          echo "Response: $RESPONSE"
+          echo "response=$RESPONSE" >> $GITHUB_OUTPUT
 
-      # - name: Set environment variables and push to another repository
-      #   run: |
-      #     echo "API_TOKEN_GITHUB=${{ fromJson(steps.send_post_request.outputs.response).data.GIT_TOKEN }}" >> $GITHUB_ENV
-      #     echo "PROD_URL=${{ fromJson(steps.send_post_request.outputs.response).data.PROD_URL }}" >> $GITHUB_ENV
-      #     echo "DESTINATION_GIT_USER=${{ fromJson(steps.send_post_request.outputs.response).data.DESTINATION_GIT_USER }}" >> $GITHUB_ENV
-      #     echo "DESTINATION_GIT_REPO=${{ fromJson(steps.send_post_request.outputs.response).data.DESTINATION_GIT_REPO }}" >> $GITHUB_ENV
+      - name: Set environment variables and push to another repository
+        run: |
+          echo "API_TOKEN_GITHUB=${{ fromJson(steps.send_post_request.outputs.response).data.GIT_TOKEN }}" >> $GITHUB_ENV
+          echo "PROD_URL=${{ fromJson(steps.send_post_request.outputs.response).data.PROD_URL }}" >> $GITHUB_ENV
+          echo "DESTINATION_GIT_USER=${{ fromJson(steps.send_post_request.outputs.response).data.DESTINATION_GIT_USER }}" >> $GITHUB_ENV
+          echo "DESTINATION_GIT_REPO=${{ fromJson(steps.send_post_request.outputs.response).data.DESTINATION_GIT_REPO }}" >> $GITHUB_ENV
 
       
       # - name: Checkout source code
