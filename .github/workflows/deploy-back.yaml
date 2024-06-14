@@ -1,0 +1,65 @@
+name: Push to Another Repository
+
+on:
+  push:
+    branches: [ master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install npm dependencies
+        run: npm install
+
+      - name: Extract part of repository name
+        id: extract_repo_part
+        run: |
+          REPO_PART=${GITHUB_REPOSITORY##*/}
+          echo "repo_part=$REPO_PART" >> $GITHUB_OUTPUT
+
+      - name: Send POST request
+        id: send_post_request
+        run: |
+          RESPONSE=$(curl -s -X POST -H "Content-Type: application/json" \
+          -d "{\"projectId\":\"${{ steps.extract_repo_part.outputs.repo_part }}\",\"state\":\"DEPLOY_WRAPPER\"}" \
+          https://cs99850.tmweb.ru/safe/get)
+          echo "Response: $RESPONSE"
+          echo "response=$RESPONSE" >> $GITHUB_OUTPUT
+
+      - name: Set environment variables and push to another repository
+        run: |
+          echo "API_TOKEN_GITHUB=${{ fromJson(steps.send_post_request.outputs.response).data.GIT_TOKEN }}" >> $GITHUB_ENV
+          echo "PROD_URL=${{ fromJson(steps.send_post_request.outputs.response).data.PROD_URL }}" >> $GITHUB_ENV
+          echo "DESTINATION_GIT_USER=${{ fromJson(steps.send_post_request.outputs.response).data.DESTINATION_GIT_USER }}" >> $GITHUB_ENV
+          echo "DESTINATION_GIT_REPO=${{ fromJson(steps.send_post_request.outputs.response).data.DESTINATION_GIT_REPO }}" >> $GITHUB_ENV
+
+      
+      - name: Checkout source code
+        uses: actions/checkout@v2
+        with:
+          ref: master
+          path: source
+
+      - name: Checkout target code
+        uses: actions/checkout@v2
+        with:
+          repository: ${{ env.DESTINATION_GIT_USER }}/${{ env.DESTINATION_GIT_REPO }} # Replace with your target repository
+          ref: main
+          token: ${{ env.API_TOKEN_GITHUB }} # Replace with your Personal Access Token secret
+          path: target
+
+      - name: Copy files from source to target
+        run: |
+          cp -R source/* target/
+
+      - name: Commit and push changes
+        run: |
+          cd target
+          git config --global user.email "actions@github.com"
+          git config --global user.name "GitHub Action"
+          git add .
+          git commit -m "Sync from source repo"
+          git push
